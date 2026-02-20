@@ -312,33 +312,30 @@ def chat_api():
     try:
         assistant_messages: List[str] = []
         if phase == "clarification":
+            # Technical completeness check is asked only once (first interaction).
             requirement_messages.append(user_input)
-            complete, answer = run_clarification_step(
+            _complete, answer = run_clarification_step(
                 client=client,
                 technical_checks=technical_checks,
                 base_request=base_request,
                 requirement_messages=requirement_messages,
             )
             assistant_messages.append(answer)
-            if complete:
-                phase = "functional_design"
-                design = run_functional_design_step(
-                    client=client,
-                    base_request=base_request,
-                    requirement_messages=requirement_messages,
-                )
-                assistant_messages.append(design)
+            assistant_messages.append(
+                "Please share any additional details now (optional). Then I will produce the functional design in the next response."
+            )
+            phase = "functional_design"
 
         elif phase == "functional_design":
-            phase = "block_proposal"
-            proposal = run_block_proposal_step(
+            # User can provide missing details (or skip); we then always proceed.
+            requirement_messages.append(user_input)
+            design = run_functional_design_step(
                 client=client,
                 base_request=base_request,
                 requirement_messages=requirement_messages,
-                design_feedback=user_input,
-                blocks=blocks,
             )
-            assistant_messages.append(proposal)
+            assistant_messages.append(design)
+            phase = "block_proposal"
 
         else:
             requirement_messages.append(user_input)

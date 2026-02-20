@@ -113,7 +113,7 @@ button.danger { background: var(--danger); color: #2d0010; }
 .settings-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
 .muted { color: var(--muted); font-size: 13px; }
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 .thinking {
   margin-top: 8px;
