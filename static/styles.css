@@ -64,7 +64,8 @@ button.danger { background: var(--danger); color: #2d0010; }
   padding: 10px 12px;
   border-radius: 12px;
   white-space: pre-wrap;
-  line-height: 1.4;
+  line-height: 1.28;
+  font-size: 14px;
 }
 
 .msg.user {
@@ -137,7 +138,7 @@ button.danger { background: var(--danger); color: #2d0010; }
   to { transform: rotate(360deg); }
 }
 
-.msg h1, .msg h2, .msg h3, .msg h4, .msg h5, .msg h6 { margin: 6px 0; }
-.msg p { margin: 6px 0; }
+.msg h1, .msg h2, .msg h3, .msg h4, .msg h5, .msg h6 { margin: 5px 0; line-height: 1.2; }
+.msg p { margin: 5px 0; line-height: 1.28; }
 .msg ul { margin: 6px 0 6px 18px; padding: 0; }
 .msg code { background: rgba(255, 255, 255, 0.12); padding: 2px 5px; border-radius: 6px; }
