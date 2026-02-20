@@ -1,0 +1,23 @@
+block_name,functionality_description
+OptimalReader,Enables processing of documents extracting text from them
+AIClassifier,Enables documents classification based on their content
+AIExtractor,Enables text processing to extract key entitites and their value from it
+ChatbotFrontend,it's a pre-configured chatbot frontend
+ForecastPulse,Provides demand and trend forecasting using historical and external signals
+PriceSense Optimizer,Suggests dynamic pricing actions based on elasticity and business rules
+StockPilot Predictor,Forecasts inventory needs and recommends replenishment quantities
+RouteGenius Planner,Optimizes delivery and service routes with constraints and time windows
+AuthShield SSO,Provides secure authentication with SSO and role-based access control
+IdentityVault,Manages user identities lifecycle and access policies across systems
+ReportStudio 360,Builds operational and executive dashboards with scheduled reporting
+InsightBeacon Alerts,Generates KPI alerts and anomaly notifications in real time
+CalcEngine Pro,Executes advanced numerical models and what-if simulations
+ORchestrator Solver,Solves operations research problems like scheduling and allocation
+ConstraintMaster,Evaluates hard and soft constraints for planning scenarios
+WorkflowComposer,Designs and runs configurable business workflows across services
+DataBridge ETL,Ingests transforms and synchronizes data from heterogeneous sources
+APIGateway Hub,Exposes and governs APIs with throttling versioning and monitoring
+AuditTrail Guardian,Tracks user and system actions for compliance and traceability
+QualityWatch Monitor,Monitors data quality completeness and consistency across pipelines
+KnowledgeGraph Nexus,Links entities and relationships to support contextual reasoning
+RecommendationSpark,Suggests next-best actions using behavioral and transactional signals
