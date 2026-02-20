@@ -5,6 +5,7 @@ const chatContainer = document.getElementById('chatContainer');
 const chatForm = document.getElementById('chatForm');
 const chatInput = document.getElementById('chatInput');
 const resetBtn = document.getElementById('resetBtn');
+const thinkingIndicator = document.getElementById('thinkingIndicator');
 
 const settingsBtn = document.getElementById('settingsBtn');
 const settingsDialog = document.getElementById('settingsDialog');
@@ -16,7 +17,9 @@ const blocksInfo = document.getElementById('blocksInfo');
 const apiKeyInput = document.getElementById('apiKey');
 const technicalChecksInput = document.getElementById('technicalChecks');
 
-let workflowState = JSON.parse(sessionStorage.getItem(stateKey) || '{"phase":"clarification","base_request":"","requirement_messages":[]}');
+let workflowState = JSON.parse(
+  sessionStorage.getItem(stateKey) || '{"phase":"clarification","base_request":"","requirement_messages":[]}'
+);
 let messages = JSON.parse(sessionStorage.getItem(messagesKey) || '[]');
 
 function saveLocal() {
@@ -30,12 +33,68 @@ function addMessage(role, content) {
   renderMessages();
 }
 
+function escapeHtml(str) {
+  return str
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;');
+}
+
+function renderInlineMarkdown(text) {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>');
+}
+
+function markdownToHtml(md) {
+  const lines = escapeHtml(md).split('\n');
+  let html = '';
+  let inList = false;
+
+  for (const raw of lines) {
+    const line = raw.trimEnd();
+
+    if (line.startsWith('- ') || line.startsWith('* ')) {
+      if (!inList) {
+        html += '<ul>';
+        inList = true;
+      }
+      html += `<li>${renderInlineMarkdown(line.slice(2))}</li>`;
+      continue;
+    }
+
+    if (inList) {
+      html += '</ul>';
+      inList = false;
+    }
+
+    if (!line.trim()) {
+      html += '<br />';
+    } else if (line.startsWith('### ')) {
+      html += `<h3>${renderInlineMarkdown(line.slice(4))}</h3>`;
+    } else if (line.startsWith('## ')) {
+      html += `<h2>${renderInlineMarkdown(line.slice(3))}</h2>`;
+    } else if (line.startsWith('# ')) {
+      html += `<h1>${renderInlineMarkdown(line.slice(2))}</h1>`;
+    } else {
+      html += `<p>${renderInlineMarkdown(line)}</p>`;
+    }
+  }
+
+  if (inList) {
+    html += '</ul>';
+  }
+
+  return html;
+}
+
 function renderMessages() {
   chatContainer.innerHTML = '';
   for (const m of messages) {
     const div = document.createElement('div');
     div.className = `msg ${m.role}`;
-    div.textContent = m.content;
+    div.innerHTML = markdownToHtml(m.content);
     chatContainer.appendChild(div);
   }
   chatContainer.scrollTop = chatContainer.scrollHeight;
@@ -58,7 +117,10 @@ saveSettingsBtn.addEventListener('click', async () => {
   await fetch('/api/settings', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ api_key: apiKeyInput.value, technical_checks: technicalChecksInput.value }),
+    body: JSON.stringify({
+      api_key: apiKeyInput.value,
+      technical_checks: technicalChecksInput.value,
+    }),
   });
 
   if (blocksFile.files.length > 0) {
@@ -91,23 +153,34 @@ chatForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const text = chatInput.value.trim();
   if (!text) return;
+
   chatInput.value = '';
   addMessage('user', text);
 
-  const r = await fetch('/api/chat', {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ user_input: text, state: workflowState }),
-  });
-  const data = await r.json();
-  if (!r.ok) {
-    addMessage('assistant', data.error || 'Unknown error');
-    return;
-  }
+  try {
+    thinkingIndicator.classList.remove('hidden');
 
-  workflowState = data.state;
-  for (const msg of data.assistant_messages) {
-    addMessage('assistant', msg);
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user_input: text, state: workflowState }),
+    });
+    const data = await r.json();
+
+    thinkingIndicator.classList.add('hidden');
+
+    if (!r.ok) {
+      addMessage('assistant', data.error || 'Unknown error');
+      return;
+    }
+
+    workflowState = data.state;
+    for (const msg of data.assistant_messages) {
+      addMessage('assistant', msg);
+    }
+  } catch (err) {
+    thinkingIndicator.classList.add('hidden');
+    addMessage('assistant', `Network or server error: ${err}`);
   }
 });
 
