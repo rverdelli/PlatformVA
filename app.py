@@ -59,6 +59,23 @@ def get_client(api_key: str) -> OpenAI:
     return OpenAI(api_key=api_key)
 
 
+def generate_text(client: OpenAI, prompt: str, temperature: float = 0.2) -> str:
+    """Generate text with compatibility across OpenAI Python SDK variants."""
+    if hasattr(client, "responses"):
+        response = client.responses.create(
+            model="gpt-4.1-mini",
+            input=prompt,
+            temperature=temperature,
+        )
+        return response.output_text.strip()
+
+    completion = client.chat.completions.create(
+        model="gpt-4o-mini",
+        messages=[{"role": "user", "content": prompt}],
+        temperature=temperature,
+    )
+    return (completion.choices[0].message.content or "").strip()
+
 def run_clarification_step(
     client: OpenAI,
     technical_checks: str,
@@ -104,12 +121,7 @@ Return ONLY valid JSON:
 }}
 """.strip()
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt,
-        temperature=0.2,
-    )
-    text = response.output_text.strip()
+    text = generate_text(client=client, prompt=prompt, temperature=0.2)
     try:
         parsed = json.loads(text)
         return bool(parsed.get("complete", False)), str(parsed.get("assistant_message", "")).strip()
@@ -173,12 +185,7 @@ Create a practical proposal with these sections:
 Be concrete and concise.
 """.strip()
 
-    response = client.responses.create(
-        model="gpt-4.1-mini",
-        input=prompt,
-        temperature=0.3,
-    )
-    return response.output_text.strip()
+    return generate_text(client=client, prompt=prompt, temperature=0.3)
 
 
 def main() -> None:
