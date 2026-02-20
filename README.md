@@ -1,10 +1,20 @@
 # Solution Design Chatbot (Python)
 
-A simple Streamlit chatbot that:
+A Streamlit chatbot that helps transform a business request into a solution proposal.
 
-1. Collects a business request.
-2. Uses configurable **technical checks** to ask for missing details.
-3. Generates a solution proposal using a CSV catalog of reusable functional blocks.
+## Features
+
+- Session chat with in-page conversation history.
+- **⚙️ Settings** panel (top-right) with:
+  - OpenAI API key
+  - Technical checks text
+  - Blocks catalog CSV upload
+- **Persistent settings** saved locally (`app_settings.json`).
+- **Persistent blocks catalog** saved locally (`app_blocks_catalog.csv`) after upload.
+- Two-step assistant workflow + final proposal:
+  1. Clarification checks against configured technical checks.
+  2. Functional system design proposal.
+  3. Block recommendation proposal based on user confirmation or requested changes.
 
 ## Run
 
@@ -14,14 +24,6 @@ source .venv/bin/activate
 pip install -r requirements.txt
 streamlit run app.py
 ```
-
-## How to use
-
-- Click the **⚙️ Settings** button (top-right).
-- Add your **OpenAI API key**.
-- Paste your **Technical checks to ask the user**.
-- Upload a blocks CSV file (or download and fill the provided template).
-- Start chatting in English.
 
 ## CSV format
 
@@ -34,5 +36,5 @@ A starter template is included as `blocks_template.csv`.
 
 ## Notes
 
-- Conversation memory is session-only (no persistent history).
-- API key is kept only in the active browser session.
+- Chat history remains session-only and resets when the app session ends.
+- Settings and blocks catalog are persisted on disk for reuse.
