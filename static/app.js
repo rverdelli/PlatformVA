@@ -71,14 +71,15 @@ function markdownToHtml(md) {
 
     if (!line.trim()) {
       html += '<br />';
-    } else if (line.startsWith('### ')) {
-      html += `<h3>${renderInlineMarkdown(line.slice(4))}</h3>`;
-    } else if (line.startsWith('## ')) {
-      html += `<h2>${renderInlineMarkdown(line.slice(3))}</h2>`;
-    } else if (line.startsWith('# ')) {
-      html += `<h1>${renderInlineMarkdown(line.slice(2))}</h1>`;
     } else {
-      html += `<p>${renderInlineMarkdown(line)}</p>`;
+      const headingMatch = line.match(/^(#{1,6})\s+(.*)$/);
+      if (headingMatch) {
+        const level = headingMatch[1].length;
+        const content = renderInlineMarkdown(headingMatch[2]);
+        html += `<h${level}>${content}</h${level}>`;
+      } else {
+        html += `<p>${renderInlineMarkdown(line)}</p>`;
+      }
     }
   }
 
