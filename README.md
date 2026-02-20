@@ -11,6 +11,7 @@ A Streamlit chatbot that helps transform a business request into a solution prop
   - Blocks catalog CSV upload
 - **Persistent settings** saved locally (`app_settings.json`).
 - **Persistent blocks catalog** saved locally (`app_blocks_catalog.csv`) after upload.
+- LLM generation uses a **reasoning model** (`o4-mini`) when available, with backward-compatible fallback.
 - Two-step assistant workflow + final proposal:
   1. Clarification checks against configured technical checks.
   2. Functional system design proposal.

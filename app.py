@@ -13,6 +13,8 @@ st.set_page_config(page_title="Solution Design Assistant", page_icon="🤖", lay
 TEMPLATE_HEADERS = ["block_name", "functionality_description"]
 CONFIG_PATH = Path("app_settings.json")
 BLOCKS_CACHE_PATH = Path("app_blocks_catalog.csv")
+REASONING_MODEL = "o4-mini"
+FALLBACK_CHAT_MODEL = "gpt-4o-mini"
 
 
 def load_persisted_settings() -> dict:
@@ -98,16 +100,18 @@ def get_client(api_key: str) -> OpenAI:
 
 
 def generate_text(client: OpenAI, prompt: str, temperature: float = 0.2) -> str:
+    """Use a reasoning model when available, with backward-compatible fallback."""
     if hasattr(client, "responses"):
         response = client.responses.create(
-            model="gpt-4.1-mini",
+            model=REASONING_MODEL,
             input=prompt,
+            reasoning={"effort": "medium"},
             temperature=temperature,
         )
         return response.output_text.strip()
 
     completion = client.chat.completions.create(
-        model="gpt-4o-mini",
+        model=FALLBACK_CHAT_MODEL,
         messages=[{"role": "user", "content": prompt}],
         temperature=temperature,
     )
